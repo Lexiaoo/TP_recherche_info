@@ -1,6 +1,24 @@
 import spacy
 import numpy as np
 
+##########################################################
+# EXERCICE 1
+##########################################################
+
+nlp = spacy.load("fr_core_news_sm")
+
+doc = nlp("Glace au chocolat.")
+
+for token in doc:
+    print(f"{token.text}: {token.pos_}")
+    print(f"{token.lemma_}")
+
+print(type (doc[0]))
+
+##########################################################
+# EXERCICE 2
+##########################################################
+
 # Charger les fichiers et les concaténer (Question 1)
 with open("kaamelott_01.txt", encoding="utf-8") as f1, open("kaamelott_02.txt", encoding="utf-8") as f2:
     text1 = f1.readlines()
@@ -92,4 +110,29 @@ for lemma, idf_value in list(idf_dict.items())[:10]:
 # EXERCICE 4
 ##########################################################
 
- 
+# 1.
+def get_voc(docs):
+    voc = ''
+
+    ######### Construire la matrice d'occurrence matrix_tf
+    lemmes = []
+    for doc in docs:
+        for token in doc:
+            lemmes.append(token.lemma_) 
+    lemmes = set(lemmes)
+    lemma_to_index = {lemma: idx for idx, lemma in enumerate(lemmes)}
+    matrix_tf = np.zeros((len(lemmes), len(docs)), dtype=int)
+    for doc_idx, doc in enumerate(docs):
+        for token in doc:
+            if not token.is_punct and not token.is_stop:
+                lemma_idx = lemma_to_index[token.lemma_]
+                matrix_tf[lemma_idx, doc_idx] += 1
+
+
+    num_documents = len(docs)
+    df_t = np.sum(matrix_tf > 0, axis=1)
+    idf_t = np.log(num_documents / (df_t)) 
+    idf_dict = {lemma: idf_t[idx] for lemma, idx in lemma_to_index.items()}
+    
+
+    return voc, matrix_tf, idf_dict
